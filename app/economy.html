@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Economy — Canada in Numbers</title>
+<meta name="description" content="Canada's economy: GDP, growth, exports by product group, trade partners and the electricity mix.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="index.html"><span class="mark">🍁</span><span class="name">Canada in Numbers</span><span class="tag">National statistics portal</span></a>
+    <nav class="nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="population.html">Population</a>
+      <a href="economy.html">Economy</a>
+      <a href="regions.html">Regions &amp; Climate</a>
+      <a href="data.html">Data &amp; Sources</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <div>
+      <h1>Economy</h1>
+      <p class="lede">A US$2.24 trillion economy in 2024 — 9th in the world. Real growth was 1.6% in 2024, inflation averaged 2.4%, and unemployment 6.3%.</p>
+    </div>
+    <span class="updated">World Bank · Statistics Canada · 2024</span>
+  </div>
+
+  <section>
+    <h2>GDP: size and growth</h2>
+    <p class="sub">Nominal GDP in current US dollars, with real (inflation-adjusted) annual growth. The 2020 dip is the pandemic recession; 2021–2022 is the rebound.</p>
+    <div class="grid-2">
+      <div class="card chart-box" id="gdp-chart"></div>
+      <div class="card chart-box" id="growth-chart"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What Canada sells</h2>
+    <p class="sub">Merchandise exports totalled C$721.1 billion in 2024; imports were C$765.7 billion. Energy products alone were C$176.2 billion of exports, and crude oil — C$158.2 billion — was the single largest export, 21.9% of the total.</p>
+    <div class="grid-2">
+      <div class="card chart-box" id="export-chart"></div>
+      <div class="card">
+        <h3>Exports by product group, 2024</h3>
+        <div class="table-wrap">
+          <table id="export-table" data-sortable>
+            <thead><tr>
+              <th data-key="group">Product group</th>
+              <th data-key="value" data-type="number">Value</th>
+              <th data-key="note">Note</th>
+            </tr></thead>
+            <tbody id="export-rows"></tbody>
+          </table>
+        </div>
+        <p class="src">Source: Statistics Canada, international merchandise trade, December 2024 release. Group totals rounded; sum ≈ C$721.1B total exports.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Who Canada trades with</h2>
+    <p class="sub">The United States took 75.9% of Canada's exports in 2024, and two-way goods trade with the US passed C$1 trillion for a third straight year. The trade surplus with the US was C$102.3 billion.</p>
+    <div class="grid-2">
+      <div class="card chart-box" id="partners-chart"></div>
+      <div class="card">
+        <h3>Electricity: mostly water</h3>
+        <div id="energy-donut"></div>
+        <p class="src">Source: IEA World Energy Balances (2024), 2022 generation data. Renewables supply 69% of electricity overall.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="insight"><strong>Why energy dominates:</strong> Canada is the world's fourth-largest oil producer and a top exporter of crude oil, natural gas, potash, gold and lumber. Oil exports reached 4.2 million barrels per day in 2024, helped by the Trans Mountain pipeline expansion. Sources: Statistics Canada; Canadian Association of Petroleum Producers.</div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p><strong>Canada in Numbers</strong> — an independent educational statistics portal. Not affiliated with Statistics Canada, the Government of Canada, or any official statistical office. Figures: Statistics Canada · World Bank · IEA · Environment and Climate Change Canada.</p>
+    <p class="small"><a href="data.html">Data &amp; sources</a> · <a href="index.html">Home</a></p>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script src="charts.js"></script>
+<script src="app.js"></script>
+<script>
+(function () {
+  document.getElementById("gdp-chart").innerHTML =
+    "<h3>Nominal GDP, 2015–2024 (US$ billions)</h3>" +
+    barChart(GDP_SERIES.map(function (d) { return { label: String(d.year), value: d.value }; }), {
+      color: "#c25e1e", title: "Canada nominal GDP 2015 to 2024",
+      format: function (v) { return "$" + (v / 1000).toFixed(2) + "T"; }
+    }) +
+    '<p class="src">Source: World Bank, World Development Indicators. In Canadian dollars: C$3,069B (Statistics Canada, 2024).</p>';
+
+  document.getElementById("growth-chart").innerHTML =
+    "<h3>Real GDP growth, 2015–2024 (% per year)</h3>" +
+    barChart(GDP_GROWTH_SERIES.map(function (d) { return { label: String(d.year), value: d.value }; }), {
+      color: "#0b6b4f", title: "Canada real GDP growth 2015 to 2024",
+      format: function (v) { return v.toFixed(1) + "%"; }
+    }) +
+    '<p class="src">Source: World Bank, World Development Indicators. 2024: +1.6%.</p>';
+
+  document.getElementById("export-chart").innerHTML =
+    "<h3>Exports by product group, 2024 (C$ billions)</h3>" +
+    hbarChart(EXPORT_GROUPS.map(function (g) {
+      return { label: g.group, value: g.value };
+    }), {
+      color: "#0b6b4f", title: "Canadian exports by product group 2024",
+      format: function (v) { return "C$" + v.toFixed(0) + "B"; }, labelW: 165
+    }) +
+    '<p class="src">Source: Statistics Canada, international merchandise trade, 2024.</p>';
+
+  document.getElementById("partners-chart").innerHTML =
+    "<h3>Export destinations, 2024 (% of exports)</h3>" +
+    hbarChart(TRADE_PARTNERS.map(function (t) {
+      return { label: t.partner, value: t.share };
+    }), {
+      color: "#c25e1e", title: "Canada export destinations 2024",
+      format: function (v) { return v.toFixed(1) + "%"; }, labelW: 150
+    }) +
+    '<p class="src">Source: Statistics Canada, international merchandise trade, 2024.</p>';
+
+  var mixColors = ["#0b6b4f", "#c25e1e", "#f4b942"];
+  document.getElementById("energy-donut").innerHTML =
+    donutChart(ENERGY_MIX.map(function (e, i) {
+      return { label: e.source, value: e.share, color: mixColors[i] };
+    }), { centre: "66%", sub: "hydropower", title: "Canada electricity generation mix 2022" });
+})();
+</script>
+</body>
+</html>
